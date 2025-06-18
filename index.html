@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CARNICERIA DON JOSE</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <header>
+    <h1>CARNICERIA DON JOSE</h1>
+    <p>Calidad y precio justo en tu mesa</p>
+  </header>
+
+  <main>
+    <input type="text" id="buscador" placeholder="Buscar productos..." style="width: 35%; padding: 10px; margin-bottom: 20px; font-size: 16px;">
+
+    <div class="productos" id="contenedor-productos"></div>
+  </main>
+
+  <div id="carrito-flotante">
+  <button id="toggle-carrito">🛒 Ver carrito</button>
+  <div id="carrito-contenido" class="oculto">
+    <h2>Carrito de Compra</h2>
+    <ul id="lista-carrito"></ul>
+    <p id="total">Total: $0</p>
+    <button id="btn-vaciar" style="background: gray; color: white; margin-top: 10px;">Vaciar carrito</button>
+    <button id="btn-enviar">Enviar pedido por WhatsApp</button>
+  </div>
+</div>
+
+  </section>
+
+  <div id="modal-producto" class="modal oculto">
+  <div class="modal-contenido">
+    <span class="cerrar" onclick="cerrarModal()">&times;</span>
+    <img id="modal-imagen" src="" alt="" style="max-width: 100%; border-radius: 8px;">
+    <h2 id="modal-nombre"></h2>
+    <p id="modal-precio"></p>
+    <p id="modal-descripcion"></p>
+    <button id="modal-agregar">Agregar al carrito</button>
+  </div>
+</div>
+
+
+  <script src="script.js"></script>
+</body>
+</html>

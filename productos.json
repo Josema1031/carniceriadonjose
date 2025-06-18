@@ -1,0 +1,67 @@
+[
+  {
+    "id": 1,
+    "nombre": "Asado de tira kg",
+    "precio": 3500,
+    "imagen": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcQBpF7mxmmFHm3hErjXyfsUK795sScb33S1wpKAIVHxV_QQEqduaQxR1Y2X-OWqu_dOfZMzKWGUkCkDzI_xUJcD01Fq2woCcDbORJYFxzv7RyEm3Zk-tNGkhQ"
+  },
+  {
+    "id": 2,
+    "nombre": "Milanesa de carne kg",
+    "precio": 2800,
+    "imagen": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcQHRiFZTxZaIWjWgOb9wQ0kP5DRplwwhOYOgjVc8un2J-15nhzLKdwdAxaTs5rS9QPUxWOF9H_kemt_fm1Ar5TNW0VSjSW7cLvs3lZxYUVedcodH2GO1ULVY4Wx"
+  },
+
+   {
+    "id": 3,
+    "nombre": "Vacio kg",
+    "precio": 1800,
+    "imagen": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcQ5FyksNe_d2JZfa4_e0p7A9FcxB3_GldQQKPK6R0juF9z5VeQ4NSFNCYLBmrmySPXwf_3ZtIhHc-i1NTbAMK77Enbchj9FcLbdVKas7dnEy-8mNmiXg43i8w"
+  },
+
+  
+  {
+    "id": 4,
+    "nombre": "Chorizo casero kg",
+    "precio": 1800,
+    "imagen": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcSrpYATvZqWa8kcRLvrWMm7sDMj-nnNNevKdE5LghbdCYci08Rcgtp127f8DezP7GBvVV8kMMysNmun-JQ5R_qqvvdMZtdrvyjk5GAC3HHEzHHKaY-u-ltX4w"
+  },
+  {
+    "id": 5,
+    "nombre": "Matambre de novillo kg",
+    "precio": 1800,
+    "imagen": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTUUk3ZpNmTejsrvwxgUi7lWcivFsUJFa-clDikzx5jfA3k75YXPpXwCWGAufR0XvAeWG79mKjqN85xDg0iicQL85qDb3JcobB1DvASYLMz08F_th8qo2qT7k4"
+  }, 
+
+  {
+    "id": 6,
+    "nombre": "Entraña kg ",
+    "precio": 1800,
+    "imagen": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcRF3a8T9_IYwT5bTYJ5Gq2ijb0b5ATgXngXEKIxlZyU8Uj1SFyaC0rdaxuH542NhTmz-iEBHvwiLtnwLdWFOrJeoHkCy_ciKf94Vi9dJtJ0gcN9mZSOX2_6ZA"
+  },
+  {
+    "id": 7,
+    "nombre": "Bife de chorizo kg",
+    "precio": 1800,
+    "imagen": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcS27zz4wZdSd-lGLeilmbh5doZIyH9nP8FD3W62rncw8M2iGETMHau7JUyqUGjRtDHzW6iKK_No0uqGJny_Qu2VPhMyhICbNyE7XFrc43H5QlIGLHksWT0d"
+  },
+  {
+    "id": 8,
+    "nombre": "Ojo de Bife kg",
+    "precio": 1800,
+    "imagen": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcRzhUvkjpfQROfwhUoBgIO4bSNYyX9dx59CgZS4M5gHrbpRUmFT8n8u-lkV6UyPLfV_0u5fMnTz1zN5QPkBy82Ll6dTEsW9LnBwiZ_8yf6aOPtGXoEAbqphQw"
+  },
+  {
+    "id": 9,
+    "nombre": "Colita de Cuadril kg",
+    "precio": 1800,
+    "imagen": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcScl9oIcMNva45wKgQvQxNuv0knlHKlssI9yxXA7uVMh6CDiprgrQdLVL3xIMKPwgAaHjf1SAFxNzhrgRDSPOxuDMebSxbc7bh4GkHyK3MmbPmdzvEfwJ2y"
+  }, 
+  {
+    "id": 10,
+    "nombre": "Lomo de Novillo kg",
+    "precio": 1800,
+    "imagen": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcSWqQgrXtvGIQty1DztiVtCYL8_VapocjKLfTEdGeX2tAiLcQc1EbluduICyTuMwCOVczMGCVkU9tuLUMTnhKtq_Xum7OYvm8OAkYff4E70g324ewKymObZVQ"
+  }
+  
+]
