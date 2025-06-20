@@ -1,73 +1,57 @@
+// Carrito y productos cargados
 let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
 let productosCargados = [];
 
+// Cargar productos desde localStorage o productos.json
 async function cargarProductos() {
-  const res = await fetch("productos.json");
-  const productos = await res.json();
-  productosCargados = productos;
+  const productosLocal = JSON.parse(localStorage.getItem('productos'));
+
+  if (productosLocal && productosLocal.length > 0) {
+    productosCargados = productosLocal;
+  } else {
+    try {
+      const res = await fetch("productos.json");
+      if (!res.ok) throw new Error("No se pudo cargar productos.json");
+      const data = await res.json();
+      productosCargados = data;
+    } catch (error) {
+      console.error("Error cargando productos.json:", error);
+      productosCargados = [];
+    }
+  }
+
   mostrarProductos(productosCargados);
 }
 
-function mostrarProductos(productos) {
-  const contenedor = document.getElementById("contenedor-productos");
-  contenedor.innerHTML = "";
-
-  productos.forEach(prod => {
-    const div = document.createElement("div");
-    div.className = "card";
-    div.innerHTML = `
-      <img src="${prod.imagen}" alt="${prod.nombre}" style="cursor: pointer;" onclick="abrirModal(${prod.id})">
-  <h3>${prod.nombre}</h3>
-  <p>$${prod.precio}</p>
-  <button onclick="agregarAlCarrito(${prod.id}, '${prod.nombre}', ${prod.precio})">Agregar</button>
-    `;
-    contenedor.appendChild(div);
-  });
-}
-
+// Buscar productos en tiempo real
 document.getElementById("buscador").addEventListener("input", e => {
   const texto = e.target.value.toLowerCase();
   const filtrados = productosCargados.filter(p => p.nombre.toLowerCase().includes(texto));
   mostrarProductos(filtrados);
 });
 
+// Agregar producto al carrito
 function agregarAlCarrito(id, nombre, precio) {
+  console.log("Agregar al carrito:", { id, nombre, precio });
   const index = carrito.findIndex(p => p.id === id);
+  console.log("Índice en carrito:", index);
   if (index !== -1) {
     carrito[index].cantidad += 1;
   } else {
     carrito.push({ id, nombre, precio, cantidad: 1 });
   }
+  console.log("Carrito ahora es:", carrito);
   guardarCarrito();
   mostrarCarrito();
 }
 
-function eliminarDelCarrito(index) {
-  carrito.splice(index, 1);
-  guardarCarrito();
-  mostrarCarrito();
-}
 
-function aumentarCantidad(index) {
-  carrito[index].cantidad += 1;
-  guardarCarrito();
-  mostrarCarrito();
-}
-
-function disminuirCantidad(index) {
-  if (carrito[index].cantidad > 1) {
-    carrito[index].cantidad -= 1;
-  } else {
-    carrito.splice(index, 1);
-  }
-  guardarCarrito();
-  mostrarCarrito();
-}
-
+// Guardar carrito en localStorage
 function guardarCarrito() {
   localStorage.setItem("carrito", JSON.stringify(carrito));
 }
 
+// Mostrar el contenido del carrito
 function mostrarCarrito() {
   const lista = document.getElementById("lista-carrito");
   lista.innerHTML = "";
@@ -88,6 +72,41 @@ function mostrarCarrito() {
   document.getElementById("total").textContent = `Total: $${total}`;
 }
 
+// Aumentar cantidad de un producto
+function aumentarCantidad(index) {
+  carrito[index].cantidad += 1;
+  guardarCarrito();
+  mostrarCarrito();
+}
+
+// Disminuir cantidad de un producto
+function disminuirCantidad(index) {
+  if (carrito[index].cantidad > 1) {
+    carrito[index].cantidad -= 1;
+  } else {
+    carrito.splice(index, 1);
+  }
+  guardarCarrito();
+  mostrarCarrito();
+}
+
+// Eliminar producto del carrito
+function eliminarDelCarrito(index) {
+  carrito.splice(index, 1);
+  guardarCarrito();
+  mostrarCarrito();
+}
+
+// Vaciar carrito
+document.getElementById("btn-vaciar").addEventListener("click", () => {
+  if (confirm("¿Estás seguro que querés vaciar el carrito?")) {
+    carrito = [];
+    guardarCarrito();
+    mostrarCarrito();
+  }
+});
+
+// Enviar pedido por WhatsApp
 document.getElementById("btn-enviar").addEventListener("click", () => {
   if (carrito.length === 0) {
     alert("El carrito está vacío");
@@ -97,32 +116,19 @@ document.getElementById("btn-enviar").addEventListener("click", () => {
   const mensaje = carrito.map(p => `${p.nombre} - $${p.precio} x ${p.cantidad}`).join("\n");
   const url = `https://wa.me/5492644429649?text=Hola, quiero hacer un pedido:%0A${encodeURIComponent(mensaje)}`;
 
-  // Abrir WhatsApp en nueva pestaña
   window.open(url, "_blank");
-
-  // Vaciar carrito y redirigir a página de gracias
   carrito = [];
   guardarCarrito();
   mostrarCarrito();
   window.location.href = "gracias.html";
 });
 
-
-document.getElementById("btn-vaciar").addEventListener("click", () => {
-  if (confirm("¿Estás seguro que querés vaciar el carrito?")) {
-    carrito = [];
-    guardarCarrito();
-    mostrarCarrito();
-  }
-});
-
+// Mostrar/Ocultar carrito flotante
 document.getElementById("toggle-carrito").addEventListener("click", () => {
   document.getElementById("carrito-contenido").classList.toggle("oculto");
 });
 
-cargarProductos();
-mostrarCarrito();
-
+// Modal de detalles del producto
 function abrirModal(id) {
   const producto = productosCargados.find(p => p.id === id);
   if (!producto) return;
@@ -143,3 +149,25 @@ function cerrarModal() {
   document.getElementById("modal-producto").classList.add("oculto");
 }
 
+// Inicializar tienda
+cargarProductos();
+mostrarCarrito();
+
+function mostrarProductos(productos) {
+  const contenedor = document.getElementById("contenedor-productos");
+  contenedor.innerHTML = "";
+
+  productos.forEach(prod => {
+    if (!prod.id || !prod.nombre || !prod.precio) return;
+
+    const div = document.createElement("div");
+    div.className = "card";
+    div.innerHTML = `
+      <img src="${prod.imagen}" alt="${prod.nombre}" style="cursor: pointer;" onclick="abrirModal(${prod.id})">
+      <h3>${prod.nombre}</h3>
+      <p>$${prod.precio}</p>
+      <button onclick="agregarAlCarrito(${prod.id}, '${prod.nombre}', ${prod.precio})">Agregar</button>
+    `;
+    contenedor.appendChild(div);
+  });
+}
