@@ -84,103 +84,151 @@
 
   </div>
 
-  <script>
-    const USUARIO_CORRECTO = "admin";
-    const CLAVE_CORRECTA = "1234";
+  <!-- Firebase SDKs -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import {
+    getFirestore,
+    collection,
+    getDocs,
+    addDoc,
+    updateDoc,
+    deleteDoc,
+    doc
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    function verificarLogin() {
-  const usuario = document.getElementById("usuario").value;
-  const clave = document.getElementById("clave").value;
-  const error = document.getElementById("mensaje-error");
+  // Tu configuración de Firebase
+  const firebaseConfig = {
+    apiKey: "AIzaSyA36uwBk0FBDc6rI16BAsqUNe_AXLpv62Q",
+    authDomain: "carniceriadonjose-48638.firebaseapp.com",
+    projectId: "carniceriadonjose-48638",
+    storageBucket: "carniceriadonjose-48638.firebasestorage.app",
+    messagingSenderId: "322531750471",
+    appId: "1:322531750471:web:78e290c9c81eecc7be3762"
+  };
 
-  if (usuario === USUARIO_CORRECTO && clave === CLAVE_CORRECTA) {
-    sessionStorage.setItem("accesoPermitido", "true");
-    sessionStorage.setItem("horaLogin", Date.now()); // ⏱ guardamos hora del login
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const productosRef = collection(db, "productos");
 
-    document.getElementById("login-container").style.display = "none";
-    document.getElementById("admin-panel").style.display = "block";
-    mostrarProductos();
-  } else {
-    error.textContent = "Usuario o contraseña incorrectos";
-  }
-}
+  let productos = [];
 
+  // AUTENTICACIÓN LOCAL SIMPLE
+  const USUARIO_CORRECTO = "admin";
+  const CLAVE_CORRECTA = "1234";
 
-    let productos = JSON.parse(localStorage.getItem('productos')) || [];
+  window.verificarLogin = async function () {
+    const usuario = document.getElementById("usuario").value;
+    const clave = document.getElementById("clave").value;
+    const error = document.getElementById("mensaje-error");
 
-    function mostrarProductos() {
-      const tbody = document.querySelector("#tabla-productos tbody");
-      tbody.innerHTML = "";
+    if (usuario === USUARIO_CORRECTO && clave === CLAVE_CORRECTA) {
+      sessionStorage.setItem("accesoPermitido", "true");
+      sessionStorage.setItem("horaLogin", Date.now());
 
-      productos.forEach((prod, index) => {
-        const fila = document.createElement("tr");
-
-        fila.innerHTML = `
-          <td><input type="text" value="${prod.nombre}" onchange="editar(${index}, 'nombre', this.value)"></td>
-          <td><input type="number" value="${prod.precio}" onchange="editar(${index}, 'precio', this.value)"></td>
-          <td><input type="text" value="${prod.imagen}" onchange="editar(${index}, 'imagen', this.value)"></td>
-          <td><button onclick="eliminarProducto(${index})">🗑️ Eliminar</button></td>
-        `;
-
-        tbody.appendChild(fila);
-      });
-    }
-
-    function editar(index, campo, valor) {
-      productos[index][campo] = campo === 'precio' ? parseFloat(valor) : valor;
-    }
-
-    function agregarProducto() {
-      const nuevoId = Date.now();
-      productos.push({ id: nuevoId, nombre: "", precio: 0, imagen: "" });
-      mostrarProductos();
-    }
-
-    function eliminarProducto(index) {
-      if (confirm("¿Estás seguro de eliminar este producto?")) {
-        productos.splice(index, 1);
-        mostrarProductos();
-      }
-    }
-
-    function guardarProductos() {
-      localStorage.setItem('productos', JSON.stringify(productos));
-      alert("✅ Productos guardados correctamente.");
-    }
-
-    window.obtenerProductos = function() {
-      return JSON.parse(localStorage.getItem('productos')) || [];
-    }
-
-    window.onload = function () {
-  const acceso = sessionStorage.getItem("accesoPermitido");
-  const horaLogin = sessionStorage.getItem("horaLogin");
-
-  if (acceso === "true" && horaLogin) {
-    const ahora = Date.now();
-    const diferenciaMinutos = (ahora - parseInt(horaLogin)) / 60000;
-
-    if (diferenciaMinutos <= 15) {
       document.getElementById("login-container").style.display = "none";
       document.getElementById("admin-panel").style.display = "block";
-      mostrarProductos();
+      await mostrarProductos();
     } else {
-      // Sesión vencida
-      sessionStorage.removeItem("accesoPermitido");
-      sessionStorage.removeItem("horaLogin");
-      alert("Tu sesión ha caducado por inactividad. Por favor, vuelve a iniciar sesión.");
+      error.textContent = "Usuario o contraseña incorrectos";
     }
-  }
-};
+  };
 
-
-
-function cerrarSesion() {
-  sessionStorage.removeItem("accesoPermitido");
-  location.reload(); // Recarga la página para volver al login
+  async function mostrarProductos() {
+  const snapshot = await getDocs(productosRef);
+  productos = snapshot.docs.map(docSnap => ({
+    id: docSnap.id,
+    ...docSnap.data()
+  }));
+  renderTabla();
 }
 
 
-  </script>
+  window.editar = function (index, campo, valor) {
+    productos[index][campo] = campo === 'precio' ? parseFloat(valor) : valor;
+  };
+
+ window.agregarProducto = function () {
+  productos.push({ nombre: "", precio: 0, imagen: "", id: null });
+  renderTabla();
+}; 
+
+
+
+function renderTabla() {
+  const tbody = document.querySelector("#tabla-productos tbody");
+  tbody.innerHTML = "";
+
+  productos.forEach((prod, index) => {
+    const fila = document.createElement("tr");
+    fila.innerHTML = `
+      <td><input type="text" value="${prod.nombre}" onchange="editar(${index}, 'nombre', this.value)"></td>
+      <td><input type="number" value="${prod.precio}" onchange="editar(${index}, 'precio', this.value)"></td>
+      <td><input type="text" value="${prod.imagen}" onchange="editar(${index}, 'imagen', this.value)"></td>
+      <td>
+        <button onclick="eliminarProducto('${prod.id}', ${index})">🗑️ Eliminar</button>
+      </td>
+    `;
+    tbody.appendChild(fila);
+  });
+}
+
+
+  window.eliminarProducto = async function (id) {
+    if (confirm("¿Estás seguro de eliminar este producto?")) {
+      await deleteDoc(doc(db, "productos", id));
+      await mostrarProductos();
+    }
+  };
+
+  window.guardarProductos = async function () {
+    for (const prod of productos) {
+      if (prod.id) {
+        // Ya existe en la base, actualizamos
+        const ref = doc(db, "productos", prod.id);
+        await updateDoc(ref, {
+          nombre: prod.nombre,
+          precio: prod.precio,
+          imagen: prod.imagen
+        });
+      } else {
+        // Producto nuevo
+        await addDoc(productosRef, {
+          nombre: prod.nombre,
+          precio: prod.precio,
+          imagen: prod.imagen
+        });
+      }
+    }
+    alert("✅ Productos guardados correctamente.");
+    await mostrarProductos();
+  };
+
+  window.onload = async function () {
+    const acceso = sessionStorage.getItem("accesoPermitido");
+    const horaLogin = sessionStorage.getItem("horaLogin");
+
+    if (acceso === "true" && horaLogin) {
+      const ahora = Date.now();
+      const diferenciaMinutos = (ahora - parseInt(horaLogin)) / 60000;
+
+      if (diferenciaMinutos <= 15) {
+        document.getElementById("login-container").style.display = "none";
+        document.getElementById("admin-panel").style.display = "block";
+        await mostrarProductos();
+      } else {
+        sessionStorage.removeItem("accesoPermitido");
+        sessionStorage.removeItem("horaLogin");
+        alert("Tu sesión ha caducado. Iniciá sesión nuevamente.");
+      }
+    }
+  };
+
+  window.cerrarSesion = function () {
+    sessionStorage.removeItem("accesoPermitido");
+    location.reload();
+  };
+</script>
+
 </body>
 </html>
