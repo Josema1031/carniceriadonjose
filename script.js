@@ -25,14 +25,31 @@ let productosCargados = [];
 
 // Cargar productos desde Firebase
 async function cargarProductos() {
+  document.getElementById("loader").style.display = "block";
+
+  // Primero intento cargar desde sessionStorage
+  const cache = sessionStorage.getItem("productosFirebase");
+
+  if (cache) {
+    productosCargados = JSON.parse(cache);
+    mostrarProductos(productosCargados);
+    document.getElementById("loader").style.display = "none";
+    return;
+  }
+
   try {
     const snapshot = await getDocs(productosRef);
     productosCargados = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+    sessionStorage.setItem("productosFirebase", JSON.stringify(productosCargados));
     mostrarProductos(productosCargados);
   } catch (error) {
     console.error("Error cargando productos desde Firebase:", error);
+  } finally {
+    document.getElementById("loader").style.display = "none";
   }
 }
+
 
 // Buscar productos en tiempo real
 document.getElementById("buscador").addEventListener("input", e => {
@@ -57,6 +74,10 @@ function agregarAlCarrito(id, nombre, precio) {
 function guardarCarrito() {
   localStorage.setItem("carrito", JSON.stringify(carrito));
 }
+window.addEventListener("beforeunload", () => {
+  localStorage.removeItem("carrito");
+});
+
 
 // Mostrar el contenido del carrito
 function mostrarCarrito() {
@@ -179,10 +200,7 @@ function mostrarProductos(productos) {
 // Iniciar
 cargarProductos();
 mostrarCarrito();
-// Exponer funciones al contexto global (necesario por usar "type=module")
-window.agregarAlCarrito = agregarAlCarrito;
-window.abrirModal = abrirModal;
-window.cerrarModal = cerrarModal;
+
 // Exponer funciones al contexto global
 window.agregarAlCarrito = agregarAlCarrito;
 window.abrirModal = abrirModal;
