@@ -15,6 +15,13 @@
     <h1>CARNICERIA DON JOSE</h1>
     <p>Calidad y precio justo en tu mesa</p>
   </header>
+ <div id="menu-categorias">
+  <button onclick="filtrarCategoria('todo')">Todos</button>
+  <button onclick="filtrarCategoria('carne')">Carne</button>
+  <button onclick="filtrarCategoria('cerdo')">Cerdo</button>
+  <button onclick="filtrarCategoria('pollo')">Pollo</button>
+</div>
+
 
   <div id="loader" style="text-align:center; margin: 30px 0; font-size: 18px;">
   <p>Cargando productos...</p>
@@ -24,7 +31,14 @@
     <input type="text" id="buscador" placeholder="Buscar productos..." style="width: 35%; padding: 10px; margin-bottom: 20px; font-size: 16px;">
 
     <div class="productos" id="contenedor-productos"></div>
+    <div style="text-align:center; margin: 20px;">
+<button id="btn-mostrar-mas" onclick="mostrarMasProductos()">Mostrar más productos</button>
+</div>
+
   </main>
+
+  
+
 
   <div id="carrito-flotante">
   <button id="toggle-carrito">🛒 Ver carrito</button>

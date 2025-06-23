@@ -22,32 +22,25 @@ const productosRef = collection(db, "productos");
 
 let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
 let productosCargados = [];
+let productosMostrados = 0;
+const cantidadPorCarga = 8;
+
 
 // Cargar productos desde Firebase
 async function cargarProductos() {
   document.getElementById("loader").style.display = "block";
 
-  // Primero intento cargar desde sessionStorage
-  const cache = sessionStorage.getItem("productosFirebase");
+  // No usar caché: siempre traer datos frescos desde Firebase
+try {
+  const snapshot = await getDocs(productosRef);
+  productosCargados = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  mostrarProductos(productosCargados);
+} catch (error) {
+  console.error("Error cargando productos desde Firebase:", error);
+} finally {
+  document.getElementById("loader").style.display = "none";
+}
 
-  if (cache) {
-    productosCargados = JSON.parse(cache);
-    mostrarProductos(productosCargados);
-    document.getElementById("loader").style.display = "none";
-    return;
-  }
-
-  try {
-    const snapshot = await getDocs(productosRef);
-    productosCargados = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
-    sessionStorage.setItem("productosFirebase", JSON.stringify(productosCargados));
-    mostrarProductos(productosCargados);
-  } catch (error) {
-    console.error("Error cargando productos desde Firebase:", error);
-  } finally {
-    document.getElementById("loader").style.display = "none";
-  }
 }
 
 
@@ -178,11 +171,28 @@ function cerrarModal() {
 }
 
 // Mostrar productos
-function mostrarProductos(productos) {
+function mostrarProductos(lista) {
   const contenedor = document.getElementById("contenedor-productos");
   contenedor.innerHTML = "";
 
-  productos.forEach(prod => {
+  productosMostrados = 0;
+  cargarMasProductos(lista);
+
+  const btn = document.getElementById("btn-mostrar-mas");
+  if (lista.length > cantidadPorCarga) {
+    btn.style.display = "inline-block";
+    btn.onclick = () => cargarMasProductos(lista);
+  } else {
+    btn.style.display = "none";
+  }
+}
+
+function cargarMasProductos(lista) {
+  const contenedor = document.getElementById("contenedor-productos");
+  const fin = productosMostrados + cantidadPorCarga;
+  const fragmento = lista.slice(productosMostrados, fin);
+
+  fragmento.forEach(prod => {
     if (!prod.id || !prod.nombre || !prod.precio) return;
 
     const div = document.createElement("div");
@@ -190,12 +200,20 @@ function mostrarProductos(productos) {
     div.innerHTML = `
       <img src="${prod.imagen}" alt="${prod.nombre}" style="cursor: pointer;" onclick="abrirModal('${prod.id}')">
       <h3>${prod.nombre}</h3>
-      <p>$${prod.precio}</p>
+      <p>$${prod.precio} por ${prod.tipoVenta || 'unidad'}</p>
       <button onclick="agregarAlCarrito('${prod.id}', '${prod.nombre.replaceAll("'", "\\'")}', ${prod.precio})">Agregar</button>
     `;
     contenedor.appendChild(div);
   });
+
+  productosMostrados += fragmento.length;
+
+  const btn = document.getElementById("btn-mostrar-mas");
+  if (productosMostrados >= lista.length) {
+    btn.style.display = "none";
+  }
 }
+
 
 // Iniciar
 cargarProductos();
@@ -208,4 +226,23 @@ window.cerrarModal = cerrarModal;
 window.disminuirCantidad = disminuirCantidad;
 window.aumentarCantidad = aumentarCantidad;
 window.eliminarDelCarrito = eliminarDelCarrito;
+
+window.addEventListener("storage", e => {
+  if (e.key === "productosActualizados") {
+    cargarProductos(); // vuelve a cargar desde Firebase
+  }
+});
+
+function filtrarCategoria(categoria) {
+  if (categoria === 'todo') {
+    mostrarProductos(productosCargados);
+  } else {
+    const filtrados = productosCargados.filter(p => p.categoria === categoria);
+    mostrarProductos(filtrados);
+  }
+}
+window.filtrarCategoria = filtrarCategoria;
+
+
+
 

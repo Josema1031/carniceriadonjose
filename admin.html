@@ -88,6 +88,7 @@
     <div id="acciones">
   <button onclick="agregarProducto()">➕ Agregar Producto</button>
   <button onclick="guardarProductos()">💾 Guardar Cambios</button>
+
   <button onclick="cerrarSesion()" style="background-color: darkred; color: white;">🔒 Cerrar sesión</button>
   </div>
 
@@ -96,6 +97,8 @@
         <tr>
           <th>Nombre</th>
           <th>Precio</th>
+          <th>Categoria</th>
+          <th>tipo de venta</th>
           <th>Imagen (URL)</th>
           <th>Acciones</th>
         </tr>
@@ -204,9 +207,19 @@ productosOriginales = JSON.parse(JSON.stringify(productos)); // Copia profunda
   };
 
  window.agregarProducto = function () {
-  productos.push({ nombre: "", precio: 0, imagen: "", id: null });
+  productos.unshift({
+    nombre: "",
+    precio: 0,
+    imagen: "",
+    categoria: "carne",
+    tipoVenta: "kg",
+    id: null
+  });
   renderTabla();
-}; 
+};
+
+
+
 
 
 function renderTabla(lista = productos) {
@@ -218,14 +231,31 @@ function renderTabla(lista = productos) {
     fila.innerHTML = `
       <td><input type="text" value="${prod.nombre}" onchange="editar(${index}, 'nombre', this.value)"></td>
       <td><input type="number" value="${prod.precio}" onchange="editar(${index}, 'precio', this.value)"></td>
-      <td> <input type="file" onchange="subirImagen(this, ${index})"><br>
-      <input type="text" value="${prod.imagen}" placeholder="o pegá URL" onchange="editar(${index}, 'imagen', this.value)" style="width: 100%; margin-top: 5px;"><br>
-    <small>${prod.imagen ? `<img src="${prod.imagen}" width="50"> ✅` : '❌ Sin imagen'}</small>
+      <td>
+        <select onchange="editar(${index}, 'categoria', this.value)">
+          <option value="carne" ${prod.categoria === "carne" ? "selected" : ""}>Carne</option>
+          <option value="cerdo" ${prod.categoria === "cerdo" ? "selected" : ""}>Cerdo</option>
+          <option value="pollo" ${prod.categoria === "pollo" ? "selected" : ""}>Pollo</option>
+        </select>
+      </td>
+      <td>
+        <select onchange="editar(${index}, 'tipoVenta', this.value)">
+          <option value="kg" ${prod.tipoVenta === "kg" ? "selected" : ""}>Kg</option>
+          <option value="unidad" ${prod.tipoVenta === "unidad" ? "selected" : ""}>Unidad</option>
+        </select>
+      </td>
+      <td>
+      <input type="text" value="${prod.imagen}" onchange="editar(${index}, 'imagen', this.value)" style="width: 75%; margin-top: 5px; text-align: center;">
+      <div style="text-align: center; margin-top: 5px;">  ${prod.imagen ? `<img src="${prod.imagen}" style="max-width: 80px; display: inline-block;"> ✅` : '❌ Sin imagen'}
+      </div>
+
+      </td>
       <td><button onclick="eliminarProducto('${prod.id}', ${index})">🗑️ Eliminar</button></td>
     `;
     tbody.appendChild(fila);
   });
 }
+
 
 
 
@@ -243,40 +273,45 @@ function renderTabla(lista = productos) {
     const operaciones = [];
 
     for (let i = 0; i < productos.length; i++) {
-      const actual = productos[i];
-      const original = productosOriginales.find(p => p.id === actual.id);
+      const prod = productos[i]; // usamos un nombre más claro y seguro
+      const original = productosOriginales.find(p => p.id === prod.id);
 
-      // Producto nuevo
-      if (!actual.id) {
-        operaciones.push(addDoc(productosRef, {
-          nombre: actual.nombre,
-          precio: actual.precio,
-          imagen: actual.imagen
-        }));
+      const data = {
+        nombre: prod.nombre,
+        precio: prod.precio,
+        imagen: prod.imagen,
+        categoria: prod.categoria,
+        tipoVenta: prod.tipoVenta
+      };
+
+      if (!prod.id) {
+        operaciones.push(addDoc(productosRef, data));
       } else if (
-        !original || // No encontrado (raro)
-        actual.nombre !== original.nombre ||
-        actual.precio !== original.precio ||
-        actual.imagen !== original.imagen
+        !original ||
+        original.nombre !== prod.nombre ||
+        original.precio !== prod.precio ||
+        original.imagen !== prod.imagen ||
+        original.categoria !== prod.categoria ||
+        original.tipoVenta !== prod.tipoVenta
       ) {
-        // Solo si cambió
-        const ref = doc(db, "productos", actual.id);
-        operaciones.push(updateDoc(ref, {
-          nombre: actual.nombre,
-          precio: actual.precio,
-          imagen: actual.imagen
-        }));
+        const ref = doc(db, "productos", prod.id);
+        operaciones.push(updateDoc(ref, data));
       }
     }
 
     await Promise.all(operaciones);
     alert("✅ Productos guardados correctamente.");
-    await mostrarProductos(); // Refrescar y recargar datos
+    await mostrarProductos();
   } catch (error) {
     alert("❌ Error al guardar productos.");
     console.error(error);
   }
 };
+
+
+
+// OPCIONAL: Notificar a otros dispositivos
+localStorage.setItem("productosActualizados", Date.now());
 
 
   window.onload = async function () {
@@ -349,12 +384,7 @@ window.subirImagen = async function (input, index) {
   }
 };
 
-
-
-
-
-
-
+window.productos = productos;
 
 </script>
 
