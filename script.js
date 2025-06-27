@@ -1,4 +1,5 @@
 // Firebase SDKs
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
   getFirestore,
@@ -19,6 +20,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const productosRef = collection(db, "productos");
+
 
 let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
 let productosCargados = [];

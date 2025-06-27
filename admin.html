@@ -109,6 +109,7 @@
 
   <!-- Firebase SDKs -->
 <script type="module">
+ 
  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
 import {
@@ -144,7 +145,8 @@ import {
   const app = initializeApp(firebaseConfig);
   const storage = getStorage(app); // ← ¡Ponelo acá!
   const db = getFirestore(app);
-  const productosRef = collection(db, "productos");
+const productosRef = collection(db, "productos");
+
 
   let productos = [];
   let productosOriginales = [];
@@ -245,7 +247,7 @@ function renderTabla(lista = productos) {
         </select>
       </td>
       <td>
-      <input type="text" value="${prod.imagen}" onchange="editar(${index}, 'imagen', this.value)" style="width: 75%; margin-top: 5px; text-align: center;">
+      <input type="text" value="${prod.imagen}" onchange="editar(${index}, 'imagen', this.value)" style="width: 90%; margin-top: 5px; text-align: center;">
       <div style="text-align: center; margin-top: 5px;">  ${prod.imagen ? `<img src="${prod.imagen}" style="max-width: 80px; display: inline-block;"> ✅` : '❌ Sin imagen'}
       </div>
 
