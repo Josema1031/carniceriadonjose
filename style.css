@@ -1,3 +1,8 @@
+/* -------- Reset y estructura básica -------- */
+* {
+  box-sizing: border-box;
+}
+
 body {
   font-family: Arial, sans-serif;
   margin: 0;
@@ -11,21 +16,39 @@ header {
   padding: 1rem;
 }
 
+/* -------- Grid de productos -------- */
 .productos {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* Móviles */
   gap: 1rem;
   padding: 1rem;
+  justify-items: center;
 }
 
+@media (min-width: 600px) {
+  .productos {
+    grid-template-columns: repeat(3, 1fr); /* Tablets */
+  }
+}
+
+@media (min-width: 1024px) {
+  .productos {
+    grid-template-columns: repeat(5, 1fr); /* Escritorio */
+  }
+}
+
+/* -------- Card -------- */
 .card {
+  width: 100%;
+  max-width: 200px;
   border: 1px solid #ccc;
   padding: 1rem;
-  width: 200px;
   text-align: center;
   border-radius: 8px;
   box-shadow: 1px 1px 4px rgba(0,0,0,0.1);
+  opacity: 0;
+  transform: translateY(20px);
+  animation: aparecer 0.5s ease forwards;
 }
 
 .card img {
@@ -33,6 +56,44 @@ header {
   height: auto;
 }
 
+/* -------- Animación -------- */
+@keyframes aparecer {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* -------- Menú de categorías -------- */
+#menu-categorias {
+  text-align: center;
+  margin: 20px 0;
+}
+
+#menu-categorias button {
+  background-color: #e0e0e0;
+  border: none;
+  padding: 10px 20px;
+  margin: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 20px;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+#menu-categorias button:hover {
+  background-color: #d5d5d5;
+  transform: scale(1.05);
+}
+
+#menu-categorias button.activo {
+  background-color: #a00000;
+  color: white;
+  font-weight: bold;
+  transform: scale(1.08);
+}
+
+/* -------- Carrito -------- */
 .carrito {
   padding: 1rem;
   background: #f7f7f7;
@@ -100,6 +161,7 @@ header {
   cursor: pointer;
 }
 
+/* -------- Modal producto -------- */
 .modal {
   position: fixed;
   top: 0;
@@ -131,52 +193,9 @@ header {
   cursor: pointer;
 }
 
-.oculto {
-  display: none;
-}
-
-#menu-categorias {
-  text-align: center;
-  margin: 20px 0;
-}
-
-#menu-categorias button {
-  background-color: #e0e0e0;
-  border: none;
-  padding: 10px 20px;
-  margin: 5px;
-  font-size: 16px;
-  cursor: pointer;
-  border-radius: 20px;
-  transition: background-color 0.3s, transform 0.2s;
-}
-
-#menu-categorias button:hover {
-  background-color: #d5d5d5;
-  transform: scale(1.05);
-}
-
-#menu-categorias button.activo {
-  background-color: #a00000;
-  color: white;
-  font-weight: bold;
-  transform: scale(1.08);
-}
-.card {
-  opacity: 0;
-  transform: translateY(20px);
-  animation: aparecer 0.5s ease forwards;
-}
-
-@keyframes aparecer {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
+/* -------- Botón mostrar más -------- */
 #btn-mostrar-mas {
-  background-color: #c62828; /* rojo fuerte */
+  background-color: #c62828;
   color: white;
   border: none;
   padding: 12px 24px;
@@ -191,7 +210,77 @@ header {
 }
 
 #btn-mostrar-mas:hover {
-  background-color: #b71c1c; /* rojo más oscuro al pasar el mouse */
+  background-color: #b71c1c;
   transform: scale(1.05);
 }
 
+/* -------- Responsive -------- */
+@media (max-width: 768px) {
+  header h1 {
+    font-size: 1.5rem;
+  }
+
+  #menu-categorias button {
+    padding: 8px 12px;
+    font-size: 14px;
+    margin: 4px;
+  }
+
+  #buscador {
+    width: 90% !important;
+    margin: 10px auto;
+    display: block;
+  }
+
+  #carrito-contenido {
+    width: 90%;
+    right: 5%;
+    max-height: 80vh;
+  }
+
+  .modal-contenido {
+    width: 95%;
+    max-width: 350px;
+  }
+
+  #btn-mostrar-mas {
+    width: 90%;
+  }
+}
+
+@media (max-width: 480px) {
+  header h1 {
+    font-size: 1.2rem;
+  }
+
+  header p {
+    font-size: 0.9rem;
+  }
+
+  #menu-categorias {
+    flex-wrap: wrap;
+  }
+
+  #menu-categorias button {
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+
+  #toggle-carrito {
+    padding: 10px 14px;
+    font-size: 16px;
+  }
+
+  #carrito-contenido h2 {
+    font-size: 1rem;
+  }
+
+  #btn-enviar, #btn-vaciar {
+    width: 100%;
+    margin-top: 10px;
+  }
+}
+
+.oculto {
+  display: none;
+}

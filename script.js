@@ -1,5 +1,5 @@
 // Firebase SDKs
-const tiendaId = "CARNICERIAELNOVILLITO"; // ⚠️ Cambiá esto para cada tienda
+
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
@@ -20,7 +20,8 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-const productosRef = collection(db, "tiendas", tiendaId, "productos");
+const productosRef = collection(db, "productos");
+
 
 let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
 let productosCargados = [];
