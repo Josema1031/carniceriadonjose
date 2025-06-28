@@ -109,7 +109,7 @@
 
   <!-- Firebase SDKs -->
 <script type="module">
- 
+  const tiendaId = "CARNICERIAELNOVILLITO"; // ⚠️ Cambiá esto para cada tienda
  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
 import {
@@ -145,7 +145,7 @@ import {
   const app = initializeApp(firebaseConfig);
   const storage = getStorage(app); // ← ¡Ponelo acá!
   const db = getFirestore(app);
-const productosRef = collection(db, "productos");
+  const productosRef = collection(db, "tiendas", tiendaId, "productos");
 
 
   let productos = [];
