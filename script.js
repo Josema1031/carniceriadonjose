@@ -23,6 +23,7 @@ const db = getFirestore(app);
 const productosRef = collection(db, "productos");
 
 
+
 let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
 let productosCargados = [];
 let productosMostrados = 0;

@@ -25,10 +25,17 @@
       padding: 10px;
       text-align: center;
     }
-    input[type="text"], input[type="number"], input[type="password"] {
-      width: 90%;
+    
+
+    #password {width:100%;
       padding: 5px;
+
     }
+    #email {width: 100%;
+      padding: 5px;
+
+    }
+    
     button {
       padding: 8px 12px;
       margin: 5px;
@@ -39,7 +46,7 @@
       margin-top: 20px;
     }
     #login-container {
-      max-width: 300px;
+      max-width: 400px;
       margin: 100px auto;
       padding: 20px;
       background: white;
@@ -56,26 +63,25 @@
 
   <!-- Login -->
   <div id="login-container">
-    <div id="loader" style="text-align: center; display: none; margin-top: 30px;">
-  <p>Cargando productos...</p>
-
+    <div id="loader" style="display:none; text-align:center; margin-top: 20px;">
+  <p>Cargando autenticación...</p>
 </div>
-    <h2>Acceso al Panel de Control de Productos</h2>
-    <div style="position: relative; display: flex; align-items: center; justify-content: center;">
-    <input type="text" id="usuario" placeholder="Usuario" style="padding-right: 30px;"><br><br><br><br>
-  </div>
-  
-  
-    <div style="position: relative; display: flex; align-items: center; justify-content: center;">
-  <input type="password" id="clave" placeholder="Contraseña" style="padding-right: 30px;">
-  <span id="toggle-clave" style="position: absolute; right: 15px; cursor: pointer;">👁️</span>
+
+  <h2>Acceso al Panel de Control</h2>
+  <input type="email" id="email" placeholder="Correo electrónico"><br><br>
+<div style="position: relative; display: inline-block; width: 100%;">
+  <input type="password" id="password" placeholder="Contraseña">
+  <span onclick="togglePassword()" style="
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+  ">👁️</span>
 </div>
-<br><br>
-
-
-    <button onclick="verificarLogin()">Ingresar</button>
-    <p id="mensaje-error" style="color:red;"></p>
-  </div>
+  <button onclick="login()">Ingresar</button>
+  <p id="mensaje-error" style="color:red;"></p>
+</div>
 
   <!-- Panel oculto hasta que se loguee -->
   <div id="admin-panel">
@@ -111,6 +117,13 @@
 <script type="module">
  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
+  import {
+  getAuth,
+  signInWithEmailAndPassword,
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
 import {
   getFirestore,
   collection,
@@ -128,51 +141,72 @@ import {
   getDownloadURL
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
-  
+// Tu configuración de Firebase
+const firebaseConfig = {
+  apiKey: "AIzaSyA36uwBk0FBDc6rI16BAsqUNe_AXLpv62Q",
+  authDomain: "carniceriadonjose-48638.firebaseapp.com",
+  projectId: "carniceriadonjose-48638",
+  storageBucket: "carniceriadonjose-48638.appspot.com",
+  messagingSenderId: "322531750471",
+  appId: "1:322531750471:web:78e290c9c81eecc7be3762"
+};
 
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const storage = getStorage(app); // ← ¡Ponelo acá!
+const productosRef = collection(db, "productos");
 
-  // Tu configuración de Firebase
-  const firebaseConfig = {
-    apiKey: "AIzaSyA36uwBk0FBDc6rI16BAsqUNe_AXLpv62Q",
-    authDomain: "carniceriadonjose-48638.firebaseapp.com",
-    projectId: "carniceriadonjose-48638",
-    storageBucket: "carniceriadonjose-48638.appspot.com",
-    messagingSenderId: "322531750471",
-    appId: "1:322531750471:web:78e290c9c81eecc7be3762"
-  };
+// Función de login
+window.login = async function () {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+  const error = document.getElementById("mensaje-error");
 
-  const app = initializeApp(firebaseConfig);
-  const storage = getStorage(app); // ← ¡Ponelo acá!
-  const db = getFirestore(app);
-  const productosRef = collection(db, "productos");
+  try {
+    const credencial = await signInWithEmailAndPassword(auth, email, password);
+    sessionStorage.setItem("loginManual", "true");
+
+    // Ahora que el login fue exitoso, forzamos el cambio visual
+    document.getElementById("login-container").style.display = "none";
+    document.getElementById("admin-panel").style.display = "block";
+    mostrarProductos();
+
+    error.textContent = "";
+  } catch (e) {
+    console.error(e);
+    error.textContent = "❌ Correo o contraseña incorrectos.";
+  }
+};
+
+// Detectar si el usuario está logueado
+onAuthStateChanged(auth, user => {
+  const login = document.getElementById("login-container");
+  const panel = document.getElementById("admin-panel");
+
+  const loginManual = sessionStorage.getItem("loginManual");
+
+  if (user && loginManual === "true") {
+    login.style.display = "none";
+    panel.style.display = "block";
+    mostrarProductos();
+  } else {
+    login.style.display = "block";
+    panel.style.display = "none";
+  }
+});
+
+// Cerrar sesión
+window.cerrarSesion = function () {
+  sessionStorage.removeItem("loginManual");
+  signOut(auth);
+};
 
   let productos = [];
-  let productosOriginales = [];
-
-
-  // AUTENTICACIÓN LOCAL SIMPLE
-  const USUARIO_CORRECTO = "Admin";
-  const CLAVE_CORRECTA = "Gualeguay";
+  let productosOriginales = [];  
   
-
-  window.verificarLogin = async function () {
-    const usuario = document.getElementById("usuario").value;
-    const clave = document.getElementById("clave").value;
-    const error = document.getElementById("mensaje-error");
-
-    if (usuario === USUARIO_CORRECTO && clave === CLAVE_CORRECTA) {
-      sessionStorage.setItem("accesoPermitido", "true");
-      sessionStorage.setItem("horaLogin", Date.now());
-
-      document.getElementById("login-container").style.display = "none";
-      document.getElementById("admin-panel").style.display = "block";
-      await mostrarProductos();
-    } else {
-      error.textContent = "Usuario o contraseña incorrectos";
-    }
-  };
 async function mostrarProductos() {
-  document.getElementById("loader").style.display = "block"; // mostrar loader
+  document.getElementById("loader") // mostrar loader
 
   // Si hay productos cacheados en sessionStorage, mostralos primero
   const cache = sessionStorage.getItem("productosAdmin");
@@ -200,8 +234,6 @@ productosOriginales = JSON.parse(JSON.stringify(productos)); // Copia profunda
   }
 }
 
-
-
   window.editar = function (index, campo, valor) {
     productos[index][campo] = campo === 'precio' ? parseFloat(valor) : valor;
   };
@@ -217,10 +249,6 @@ productosOriginales = JSON.parse(JSON.stringify(productos)); // Copia profunda
   });
   renderTabla();
 };
-
-
-
-
 
 function renderTabla(lista = productos) {
   const tbody = document.querySelector("#tabla-productos tbody");
@@ -255,9 +283,6 @@ function renderTabla(lista = productos) {
     tbody.appendChild(fila);
   });
 }
-
-
-
 
   window.eliminarProducto = async function (id) {
     if (confirm("¿Estás seguro de eliminar este producto?")) {
@@ -308,31 +333,8 @@ function renderTabla(lista = productos) {
   }
 };
 
-
-
 // OPCIONAL: Notificar a otros dispositivos
 localStorage.setItem("productosActualizados", Date.now());
-
-
-  window.onload = async function () {
-    const acceso = sessionStorage.getItem("accesoPermitido");
-    const horaLogin = sessionStorage.getItem("horaLogin");
-
-    if (acceso === "true" && horaLogin) {
-      const ahora = Date.now();
-      const diferenciaMinutos = (ahora - parseInt(horaLogin)) / 60000;
-
-      if (diferenciaMinutos <= 15) {
-        document.getElementById("login-container").style.display = "none";
-        document.getElementById("admin-panel").style.display = "block";
-        await mostrarProductos();
-      } else {
-        sessionStorage.removeItem("accesoPermitido");
-        sessionStorage.removeItem("horaLogin");
-        alert("Tu sesión ha caducado. Iniciá sesión nuevamente.");
-      }
-    }
-  };
 
   // Buscar productos en tiempo real en admin
 document.getElementById("buscador-admin").addEventListener("input", e => {
@@ -341,26 +343,9 @@ document.getElementById("buscador-admin").addEventListener("input", e => {
   renderTabla(filtrados);
 });
 
-
-  window.cerrarSesion = function () {
-    sessionStorage.removeItem("accesoPermitido");
-    location.reload();
-  };
+ window.cerrarSesion = () => signOut(auth);
 
   // Mostrar/ocultar contraseña
-document.getElementById("toggle-clave").addEventListener("click", () => {
-  const input = document.getElementById("clave");
-  const icono = document.getElementById("toggle-clave");
-
-  if (input.type === "password") {
-    input.type = "text";
-    icono.textContent = "🙈"; // cambialo si querés
-  } else {
-    input.type = "password";
-    icono.textContent = "👁️";
-  }
-});
-
 window.subirImagen = async function (input, index) {
   const archivo = input.files[0];
   if (!archivo) return;
@@ -385,8 +370,14 @@ window.subirImagen = async function (input, index) {
 };
 
 window.productos = productos;
-
 </script>
+<script>
+  function togglePassword() {
+    const input = document.getElementById("password");
+    input.type = input.type === "password" ? "text" : "password";
+  }
+</script>
+
 
 </body>
 </html>
