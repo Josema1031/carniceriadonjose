@@ -144,8 +144,8 @@ header {
 
 #carrito-flotante {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
+  bottom: 70px;
+  right: 5px;
   z-index: 1000;
 }
 
@@ -321,4 +321,27 @@ header {
 
 .oculto {
   display: none;
+}
+
+#footer {
+  background: #b30000;
+  color: #fff;
+  text-align: left;
+  padding: 20px 20px 20px 30px;
+  margin-top: 40px;
+  font-size: 14px;
+  border-radius: 6px;
+}
+
+#footer p {
+  margin: 5px 0;
+}
+
+/* Footer responsive en móviles */
+@media (max-width: 600px) {
+  #footer {
+    padding: 15px;
+    font-size: 12px;
+   
+  }
 }

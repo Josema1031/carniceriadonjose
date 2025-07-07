@@ -138,8 +138,11 @@ document.getElementById("btn-enviar").addEventListener("click", () => {
     return;
   }
 
-  const mensaje = carrito.map(p => `${p.nombre} - $${p.precio} x ${p.cantidad}`).join("\n");
-  const url = `https://wa.me/5492644429649?text=Hola, quiero hacer un pedido:%0A${encodeURIComponent(mensaje)}`;
+  const mensajeProductos = carrito.map(p => `${p.nombre} - $${p.precio} x ${p.cantidad}`).join("\n");
+  const total = carrito.reduce((acc, p) => acc + p.precio * p.cantidad, 0);
+  const mensajeCompleto = `${mensajeProductos}\n\nTotal del pedido: $${total}`;
+
+  const url = `https://wa.me/5492644429649?text=Hola, quiero hacer el siguiente pedido:%0A${encodeURIComponent(mensajeCompleto)}`;
 
   window.open(url, "_blank");
   carrito = [];
@@ -147,6 +150,7 @@ document.getElementById("btn-enviar").addEventListener("click", () => {
   mostrarCarrito();
   window.location.href = "gracias.html";
 });
+
 
 // Carrito flotante
 document.getElementById("toggle-carrito").addEventListener("click", () => {
